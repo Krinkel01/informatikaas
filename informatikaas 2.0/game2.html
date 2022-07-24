@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+    canvas {
+      background:url(achtergrond.PNG);
+
+    }
+
+    .instructies{
+      float: right;
+      margin-right: 50px;
+    }
+  </style>
+</head>
+<body>
+<script>
+  var ally;
+  var german;
+
+  var allyStun=0;
+  var germanStun=0;
+
+  var allySpeed = 6;
+  var germanSpeed = 5;
+
+  var wall = [[1,1,0,0,0,0,0,0],[1,1,0,0,1,0,0,0]]
+
+
+
+  <!-- To start the game, making the characters.-->
+  function startGame() {
+    myGameArea.start();
+    german = new Characters(50, 50, "pop2.png", 817, 596, 1);
+    ally = new Characters(50, 50, "pop1.png", 99, 180, 2);
+  }
+
+  var myGameArea = {
+    canvas : document.createElement("canvas"),
+    start : function() {
+      this.canvas.width = 959;
+      this.canvas.height = 648;
+      this.context = this.canvas.getContext("2d");
+      document.body.insertBefore(this.canvas, document.body.childNodes[0]);
+      this.interval = setInterval(update, 20);
+
+      window.addEventListener('keydown', function (e) {
+        myGameArea.keys = (myGameArea.keys || []);
+        myGameArea.keys[e.keyCode] = (e.type == "keydown");
+      })
+      window.addEventListener('keyup', function (e) {
+        myGameArea.keys[e.keyCode] = (e.type == "keydown");
+      })
+    },
+    clear : function(){
+      this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+  }
+
+  function Characters(width, height, picture, x, y, player) {
+    this.width = width;
+    this.height = height;
+    this.speedX = 0;
+    this.speedY = 0;
+    this.x = x;
+    this.y = y;
+
+    this.player = player;
+    this.update = function() {
+      this.foto = new Image();
+      this.foto.src = picture;
+      ctx = myGameArea.context;
+      ctx.drawImage(this.foto, this.x, this.y, this.width, this.height);
+    }
+    this.newPos = function() {
+      if (this.x >= 0 && this.speedX == -allySpeed && player == 2|| this.x >= 0 && this.speedX == -germanSpeed && player == 1|| this.x <= 909 && this.speedX == allySpeed && player == 1 || this.x <= 909 && this.speedX == allySpeed && player == 2){
+        this.x += this.speedX;
+      }
+      if ((this.y >= 0 && this.speedY == -allySpeed && this.player == 2) || (this.y <= 598 && this.speedY == germanSpeed && this.player == 1) || ( this.y <= 313 && this.speedY == 6 && this.player == 2) || (this.y >= 390 && this.speedY == -germanSpeed && this.player == 1)){
+        this.y += this.speedY;
+      }
+    }
+  }
+
+  function muur(x, y, width, height){
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.height = height
+    this.update = function(){
+      this.foto = new Image();
+      this.foto.src = "blok spel.png";
+      ctx = myGameArea.context;
+        ctx.drawImage(this.foto, this.x, this.y, this.width, this.height);
+    }
+  }
+
+  function update() {
+    myGameArea.clear();
+    ally.speedX = 0;
+    ally.speedY = 0;
+    german.speedX = 0;
+    german.speedY = 0;
+
+    if (myGameArea.keys && myGameArea.keys[100] && germanStun == 0) {german.speedX = -germanSpeed;}
+    if (myGameArea.keys && myGameArea.keys[102] && germanStun == 0) {german.speedX = germanSpeed;}
+    if (myGameArea.keys && myGameArea.keys[104] && germanStun == 0) {german.speedY = -germanSpeed;}
+    if (myGameArea.keys && myGameArea.keys[101] && germanStun == 0) {german.speedY = germanSpeed;}
+
+    if (myGameArea.keys && myGameArea.keys[87] && allyStun == 0) {ally.speedY = -allySpeed;}
+    if (myGameArea.keys && myGameArea.keys[83] && allyStun == 0) {ally.speedY = allySpeed;}
+    if (myGameArea.keys && myGameArea.keys[65] && allyStun == 0) {ally.speedX = -allySpeed;}
+    if (myGameArea.keys && myGameArea.keys[68] && allyStun == 0) {ally.speedX = allySpeed;}
+
+    for(i=0; i<8; i++){
+      for(j=0; j<8; j++){
+        if(wall[i[j]] == 1) {
+          var ex=119.875 * i;
+          var wy= 200 * (1+j);
+          new muur(ex, wy, 119.875, 41)
+        }
+      }
+    }
+
+
+    ally.newPos();
+    ally.update();
+    german.newPos();
+    german.update();
+  }
+
+
+  startGame();
+</script>
+<div class = "instructies">
+  <p>
+    Instructies
+    <br>
+    <br>
+    Zorg ervoor dat je de Num Lock toetsen kan gebruiken!!!
+  <p>
+    Controls:
+  <p>
+    geallyerden (Boven)
+    <br>
+    Naar boven: W
+    <br>
+    Naar links: A
+    <br>
+    Naar rechts: D
+    <br>
+    Naar onder: S
+    <br>
+    Steen oppakken en plaatsen: "spatie"
+  <p>
+    Axis (Onder)
+    <br>
+    Naar boven: 8 (num lock)
+    <br>
+    Naar links: 4 (num lock)
+    <br>
+    Naar rechts: 6 (num lock)
+    <br>
+    Naar onder: 5 (num lock)
+    <br>
+    oppakken:  + (num lock)
+    <br>
+    Gooien:  "enter" (num lock)
+</div>
+</body>
+</html>
