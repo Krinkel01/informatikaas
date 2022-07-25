@@ -18,6 +18,8 @@
 <script>
   var ally;
   var german;
+  var builtWall;
+  var previewWall;
 
   var allyStun=0;
   var germanStun=0;
@@ -25,12 +27,17 @@
   var allySpeed = 6;
   var germanSpeed = 5;
 
-  var wall = [[1,1,0,0,0,0,0,0],[1,1,0,0,1,0,0,0]]
+  var wall;
 
+  var allyEquip;
 
 
   <!-- To start the game, making the characters.-->
   function startGame() {
+    wall = [[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0]];
+
+    allyEquip = true;
+
     myGameArea.start();
     german = new Characters(50, 50, "pop2.png", 817, 596, 1);
     ally = new Characters(50, 50, "pop1.png", 99, 180, 2);
@@ -83,7 +90,7 @@
     }
   }
 
-  function muur(x, y, width, height){
+  function Muur(x, y, width, height){
     this.x = x;
     this.y = y;
     this.width = width;
@@ -96,6 +103,21 @@
     }
   }
 
+  function MuurPreview(x, y, width, height){
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.height = height
+    this.update = function(){
+      this.foto = new Image();
+      this.foto.src = "blok spel.png";
+      ctx = myGameArea.context;
+      ctx.globalAlpha = 0.3;
+      ctx.drawImage(this.foto, this.x, this.y, this.width, this.height);
+      ctx.globalAlpha = 1;
+    }
+  }
+
   function update() {
     myGameArea.clear();
     ally.speedX = 0;
@@ -103,26 +125,40 @@
     german.speedX = 0;
     german.speedY = 0;
 
+    //Movement for the German.
     if (myGameArea.keys && myGameArea.keys[100] && germanStun == 0) {german.speedX = -germanSpeed;}
     if (myGameArea.keys && myGameArea.keys[102] && germanStun == 0) {german.speedX = germanSpeed;}
     if (myGameArea.keys && myGameArea.keys[104] && germanStun == 0) {german.speedY = -germanSpeed;}
     if (myGameArea.keys && myGameArea.keys[101] && germanStun == 0) {german.speedY = germanSpeed;}
 
+    //Movement for the Ally
     if (myGameArea.keys && myGameArea.keys[87] && allyStun == 0) {ally.speedY = -allySpeed;}
     if (myGameArea.keys && myGameArea.keys[83] && allyStun == 0) {ally.speedY = allySpeed;}
     if (myGameArea.keys && myGameArea.keys[65] && allyStun == 0) {ally.speedX = -allySpeed;}
     if (myGameArea.keys && myGameArea.keys[68] && allyStun == 0) {ally.speedX = allySpeed;}
 
-    for(i=0; i<8; i++){
+    //Checking what of the wall is built.
+    for(i=0; i<2; i++){
       for(j=0; j<8; j++){
-        if(wall[i[j]] == 1) {
-          var ex=119.875 * i;
-          var wy= 200 * (1+j);
-          new muur(ex, wy, 119.875, 41)
+        var ex=119.875 * j;
+        var wy= 300 + (43*i);
+        if(wall[i][j] == "1") {
+          builtWall = new Muur(ex, wy, 119.875, 41);
+          builtWall.update();
         }
       }
     }
-
+    if(ally.y >= 260){
+      var pX = Math.floor(ally.x/119.875);
+      var pY;
+      if(wall[0][pX] == "1") {
+        pY = 343;
+      } else {
+        pY = 300;
+      }
+      previewWall = new MuurPreview(pX * 119.875, pY, 119.875, 41);
+      previewWall.update();
+    }
 
     ally.newPos();
     ally.update();
