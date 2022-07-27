@@ -40,6 +40,12 @@
   var buildHeight = 260;
   var wallWidth = 119.875;
 
+  //Stone pile
+  var stoneTop = 120
+  var stoneBottom = 190
+  var stoneLeft = 40
+  var stoneRight = 130
+
 
 
 
@@ -118,7 +124,7 @@
     this.x = x;
     this.y = y;
     this.width = width;
-    this.height = height
+    this.height = height;
     this.update = function(){
       this.foto = new Image();
       this.foto.src = "blok spel.png";
@@ -126,6 +132,19 @@
       ctx.globalAlpha = 0.3;
       ctx.drawImage(this.foto, this.x, this.y, this.width, this.height);
       ctx.globalAlpha = 1;
+    }
+  }
+
+  function stoneEquip(x, y, width, height){
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.height = height
+    this.update = function(){
+      this.foto = new Image();
+      this.foto.src = "blok spel.png";
+      ctx = myGameArea.context;
+      ctx.drawImage(this.foto, this.x, this.y, this.width, this.height);
     }
   }
 
@@ -159,8 +178,9 @@
         }
       }
     }
-    //If ally
-    if(ally.y >= buildHeight){
+
+    //Build a part of the wall.
+    if(ally.y >= buildHeight && allyEquip){
       var pX = Math.floor((ally.x+16)/wallWidth);
       var pY;
       if(wall[0][pX] == "1") {
@@ -173,7 +193,7 @@
 
       //Checking whether ally is carrying a stone and placing it if so.
       if(allyEquip && myGameArea.keys[32]) {
-        if (wall[0][pX] == "1") {
+        if (wall[0][pX] == "1" && wall[1][pX] == "0") {
           wall[1][pX] = 1;
           allyEquip = false;
         } else if (wall[0][pX] == "0") {
@@ -182,6 +202,18 @@
         }
       }
     }
+
+    //Ally Stones pickup and picked up UI.
+    if(ally.x >= stoneLeft && ally.x <= stoneRight && ally.y >= stoneTop && ally.y <= stoneBottom){
+      if(myGameArea.keys[32]){
+        allyEquip = true;
+      }
+    }
+    if(allyEquip) {
+      stoneEquip(ally.x +50, ally.y + 50, wallWidth, 41)
+    }
+
+    console.log(ally.y);
 
     ally.newPos();
     ally.update();
