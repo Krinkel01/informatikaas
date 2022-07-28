@@ -32,7 +32,6 @@
   var germanSpeed = 5;
   var germanStun=0;
 
-
   //Wall variables
   var builtWall;
   var previewWall;
@@ -41,10 +40,24 @@
   var wallWidth = 119.875;
 
   //Stone pile
-  var stoneTop = 120
-  var stoneBottom = 190
-  var stoneLeft = 40
-  var stoneRight = 130
+  var stoneTop = 120;
+  var stoneBottom = 190;
+  var stoneLeft = 40;
+  var stoneRight = 130;
+  var stoneEquipped;
+
+  //Artillery.
+  var arty;
+  var artyReloaded = true;
+  var explosions;
+  var explHeight = 550;
+  var explWidth = 400;
+  var explTop = 100;
+  var explLeft = 0;
+  var explActiveTime;
+  var artyTime;
+  var artyTimer;
+  var explTime = 100;
 
 
 
@@ -58,6 +71,7 @@
     myGameArea.start();
     german = new Characters(50, 50, "pop2.png", 817, 596, 1);
     ally = new Characters(50, 50, "pop1.png", 99, 180, 2);
+    arty = new artillery(860, 15, 75, 45);
   }
 
   var myGameArea = {
@@ -107,6 +121,7 @@
     }
   }
 
+  //Functions to print things.
   function Muur(x, y, width, height){
     this.x = x;
     this.y = y;
@@ -142,11 +157,53 @@
     this.height = height
     this.update = function(){
       this.foto = new Image();
-      this.foto.src = "blok spel.png";
+      this.foto.src = "Brick.png";
       ctx = myGameArea.context;
       ctx.drawImage(this.foto, this.x, this.y, this.width, this.height);
     }
   }
+
+  function artillery(x, y, width, height){
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.height = height;
+    this.update = function(){
+      this.foto = new Image();
+      this.foto.src = "Arty.png";
+      ctx = myGameArea.context;
+      ctx.drawImage(this.foto, this.x, this.y, this.width, this.height);
+
+    }
+  }
+
+  function explosion(x, y, width, height){
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.height = height;
+    this.update = function(){
+      this.foto = new Image();
+      this.foto.src = "explosion.gif";
+      ctx = myGameArea.context;
+      ctx.drawImage(this.foto, this.x, this.y, this.width, this.height);
+    }
+  }
+
+  function artyCD(width, height, color, x, y, time){
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.height = height;
+    this.update = function(){
+      ctx = myGameArea.context;
+      ctx.font = this.width + " " + this.height;
+      ctx.fillStyle = color;
+      ctx.fillText(time, this.x, this.y);
+
+    }
+  }
+
 
   function update() {
     myGameArea.clear();
@@ -210,15 +267,40 @@
       }
     }
     if(allyEquip) {
-      stoneEquip(ally.x +50, ally.y + 50, wallWidth, 41)
+      stoneEquipped = new stoneEquip(ally.x +40, ally.y - 20, 30, 30);
+      stoneEquipped.update();
     }
 
-    console.log(ally.y);
+    //Artillery mechanics.
+    if(artyReloaded && myGameArea.keys[49]){
+      explosions = new explosion(explLeft, explTop, explWidth, explHeight)
+      explActiveTime = explTime;
+      artyReloaded = false;
+      artyTime = 1000
+    } else if(artyReloaded && myGameArea.keys[50]){
+      explosions = new explosion(explLeft + 320, explTop, explWidth, explHeight)
+      explActiveTime = explTime;
+      artyReloaded = false;
+      artyTime = 1000
+    } else if(artyReloaded && myGameArea.keys[51]) {
+      explosions = new explosion(explLeft + 640, explTop, explWidth, explHeight)
+      explActiveTime = explTime;
+      artyReloaded = false;
+      artyTime = 1000
+    } else if (explActiveTime <= 0) {explosions = new explosion(1,1,1,1);}
+    explActiveTime-=1;
+    artyTime-=1;
+    if(artyTime > -1){artyTimer = new artyCD("30px", "Consolas", "red", 280, 40, artyTime)}
+    if (artyTime<1){
+      artyReloaded = true;
+    }
 
     ally.newPos();
     ally.update();
     german.newPos();
     german.update();
+    arty.update();
+    explosions.update();
   }
 
 
