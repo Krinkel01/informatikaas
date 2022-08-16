@@ -27,10 +27,33 @@
   var allySpeed = 7;
   var allyStun=0;
 
+  //Stone pile
+  var stoneTop = 120;
+  var stoneBottom = 190;
+  var stoneLeft = 40;
+  var stoneRight = 130;
+  var stoneEquipped;
+
   //German Player
   var german;
   var germanSpeed = 5;
   var germanStun=0;
+  var germEquipped;
+
+  //German Stun Grenade.
+  var stunTop = 550;
+  var stunBottom = 645;
+  var stunLeft = 40;
+  var stunRight = 130;
+  var stunEquipped;
+
+  //German Frag Grenade.
+  var fragTop = 550;
+  var fragBottom = 645;
+  var fragLeft = 830;
+  var fragRight = 950;
+  var fragEquipped;
+
 
   //Wall variables
   var builtWall;
@@ -38,13 +61,6 @@
   var wall;
   var buildHeight = 260;
   var wallWidth = 119.875;
-
-  //Stone pile
-  var stoneTop = 120;
-  var stoneBottom = 190;
-  var stoneLeft = 40;
-  var stoneRight = 130;
-  var stoneEquipped;
 
   //Artillery.
   var arty;
@@ -56,6 +72,7 @@
   var explLeft = 0;
   var explActiveTime;
   var artyTime;
+  var artyTimeL = 1000;
   var artyTimer;
   var explTime = 100;
 
@@ -158,6 +175,31 @@
     this.update = function(){
       this.foto = new Image();
       this.foto.src = "Brick.png";
+      ctx = myGameArea.context;
+      ctx.drawImage(this.foto, this.x, this.y, this.width, this.height);
+    }
+  }
+
+  function StunEquip(x, y, width, height){
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.height = height
+    this.update = function(){
+      this.foto = new Image();
+      this.foto.src = "stun.png";
+      ctx = myGameArea.context;
+      ctx.drawImage(this.foto, this.x, this.y, this.width, this.height);
+    }
+  }
+  function FragEquip(x, y, width, height){
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.height = height
+    this.update = function(){
+      this.foto = new Image();
+      this.foto.src = "granaat.png";
       ctx = myGameArea.context;
       ctx.drawImage(this.foto, this.x, this.y, this.width, this.height);
     }
@@ -276,17 +318,17 @@
       explosions = new explosion(explLeft, explTop, explWidth, explHeight)
       explActiveTime = explTime;
       artyReloaded = false;
-      artyTime = 1000
+      artyTime = artyTimeL;
     } else if(artyReloaded && myGameArea.keys[50]){
       explosions = new explosion(explLeft + 320, explTop, explWidth, explHeight)
       explActiveTime = explTime;
       artyReloaded = false;
-      artyTime = 1000
+      artyTime = artyTimeL;
     } else if(artyReloaded && myGameArea.keys[51]) {
       explosions = new explosion(explLeft + 640, explTop, explWidth, explHeight)
       explActiveTime = explTime;
       artyReloaded = false;
-      artyTime = 1000
+      artyTime = artyTimeL;
     } else if (explActiveTime <= 0) {explosions = new explosion(1,1,1,1);}
     explActiveTime-=1;
     artyTime-=1;
@@ -295,12 +337,37 @@
       artyReloaded = true;
     }
 
+    //German frag and stun grenade mechanics.
+    if(german.x >= stunLeft && german.x <= stunRight && german.y >= stunTop && german.y <= stunBottom){
+      if(myGameArea.keys[107]){
+        stunEquipped = true;
+        fragEquipped = false;
+      }
+    }
+    if(german.x >= fragLeft && german.x <= fragRight && german.y >= fragTop && german.y <= fragBottom){
+      if(myGameArea.keys[107]){
+        stunEquipped = false;
+        fragEquipped = true;
+      }
+    }
+
+    if(stunEquipped) {
+      germEquipped = new StunEquip(german.x +40, german.y - 20, 30, 30);
+      stoneEquipped.update();
+    } else if(fragEquipped) {
+      germEquipped = new FragEquip(german.x +40, german.y - 20, 30, 30);
+    }
+    else {
+      germEquipped = new StunEquip(0,0,0,0)
+    }
+
     ally.newPos();
     ally.update();
     german.newPos();
     german.update();
     arty.update();
     explosions.update();
+    germEquipped.update();
   }
 
 
